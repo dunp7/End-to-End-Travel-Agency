@@ -1,25 +1,54 @@
 import streamlit as st
-from PIL import Image
+import random
+import time
 
-# Configure page
-st.set_page_config(page_title="Mindtrip", layout="wide")
+st.set_page_config(page_title="InteliTrip", page_icon=":airplane:", layout="wide")
 
-# Sidebar navigation
-st.sidebar.markdown("<h1 style='font-size:35px; font-weight:bold;'>Mindtrip</h1>", unsafe_allow_html=True)
 
-# Radio button để chọn các tùy chọn
-option = st.sidebar.radio("Select Option:", ["Chats", "Explore"])
+page = st.sidebar.selectbox(
+    "Select a page", ['Chatbot', 'Explore']
+)
 
-if option == "Chats":
-    # Header section
-    st.markdown("# Where to today?")
-    st.markdown("> Hey there, where would you like to go? I’m here to assist you in planning your experience. Ask me anything travel related.")
+if page == 'Chatbot':
+    st.title("Chatbot")
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = [{"role": "assistant", "content": "Let's start chatting! 👇"}]
 
-    # Main content sections
-    st.markdown("---")
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-    # Explore Section
-    st.subheader("For you in 🌍 Hang Bai")
-else:
+    # Accept user input
+    if prompt := st.chat_input("What is up?"):
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        # Display user message in chat message container
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    pass
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            assistant_response = random.choice(
+                [
+                    "Hello there! How can I assist you today?",
+                    "Hi, human! Is there anything I can help you with?",
+                    "Do you need help?",
+                ]
+            )
+            # Simulate stream of response with milliseconds delay
+            for chunk in assistant_response.split():
+                full_response += chunk + " "
+                time.sleep(0.05)
+                # Add a blinking cursor to simulate typing
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+
+elif page == 'Explore':
+    st.title("Explore")
